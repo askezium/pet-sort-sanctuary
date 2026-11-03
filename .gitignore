@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# raw AI-generated source images (the cut-out PNGs live in assets/pets)
+art-incoming/

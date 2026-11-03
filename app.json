@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "app-tmp",
-    "slug": "app-tmp",
+    "name": "Pet Sort Sanctuary",
+    "slug": "pet-sort-sanctuary",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,6 +20,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
