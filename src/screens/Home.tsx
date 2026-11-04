@@ -10,7 +10,7 @@ import {
 import { useNav } from '../nav';
 import { track } from '../services/analytics';
 import { update, useSave } from '../store';
-import { Text, Bar, Btn, C, IconBtn, PetImage, Pill, shadow } from '../ui/kit';
+import { Text, Bar, Btn, C, Icon, IconBtn, PetImage, Pill, shadow, type IconName } from '../ui/kit';
 
 /** The daily-reward popup greets the player once per app launch, not on every return to the hub. */
 let dailyPopupShown = false;
@@ -44,12 +44,12 @@ function Wanderer({ species, sleepy, seed, range }: { species: number; sleepy: b
   return (
     <Animated.View style={{ transform: [{ translateX: x }, { translateY: bob }], marginHorizontal: 2 }}>
       <PetImage species={species} size={40} />
-      {sleepy ? <Text style={{ position: 'absolute', top: -10, right: -6, fontSize: 14 }}>💤</Text> : null}
+      {sleepy ? <Text style={{ position: 'absolute', top: -10, right: -6, fontSize: 14 }}>:zzz:</Text> : null}
     </Animated.View>
   );
 }
 
-function Flyer({ emoji, top, dur, delay }: { emoji: string; top: number; dur: number; delay: number }) {
+function Flyer({ icon, top, dur, delay }: { icon: IconName; top: number; dur: number; delay: number }) {
   const { width } = useWindowDimensions();
   const x = useRef(new Animated.Value(-60)).current;
   useEffect(() => {
@@ -61,7 +61,11 @@ function Flyer({ emoji, top, dur, delay }: { emoji: string; top: number; dur: nu
     l.start();
     return () => l.stop();
   }, [x, width, dur, delay]);
-  return <Animated.Text pointerEvents="none" style={{ position: 'absolute', top, fontSize: 26, transform: [{ translateX: x }] }}>{emoji}</Animated.Text>;
+  return (
+    <Animated.View pointerEvents="none" style={{ position: 'absolute', top, transform: [{ translateX: x }] }}>
+      <Icon name={icon} size={26} />
+    </Animated.View>
+  );
 }
 
 export default function Home() {
@@ -96,8 +100,8 @@ export default function Home() {
       if (canUnlockHabitat(s, h.id)) {
         update((x) => unlockHabitat(x, h.id, Date.now()));
         track('habitat_unlocked', { habitat: h.id });
-        nav.toast(`${h.name} unlocked! 🎉`);
-      } else nav.toast(`${h.name} needs ${h.unlockStars} ⭐ (you have ${s.stars})`);
+        nav.toast(`${h.name} unlocked! :party:`);
+      } else nav.toast(`${h.name} needs ${h.unlockStars} :star: (you have ${s.stars})`);
       return;
     }
     nav.open({ type: 'habitat', id: h.id });
@@ -119,13 +123,13 @@ export default function Home() {
             <Pressable key={h.id} onPress={() => tapHabitat(h)} testID={`habitat-${h.id}`} accessibilityLabel={h.name} style={{ alignSelf: idx % 2 ? 'flex-end' : 'flex-start', marginHorizontal: 72, marginVertical: 8 }}>
               <View style={[styles.card, { width: colW, backgroundColor: st.unlocked ? h.color : '#D8D2C8', opacity: st.unlocked ? 1 : 0.85 }]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 44 }}>{st.unlocked ? h.emoji : '🔒'}</Text>
+                  <Text style={{ fontSize: 44 }}>{st.unlocked ? h.emoji : ':lock:'}</Text>
                   <View style={{ marginLeft: 10, flex: 1 }}>
                     <Text style={styles.cardTitle}>{h.name}</Text>
                     {st.unlocked ? (
                       <Text style={styles.cardSub}>{HABITAT_LEVELS[st.level].name} · {pets.length}/{cap}</Text>
                     ) : (
-                      <Text style={styles.cardSub}>{unlockable ? 'Tap to unlock!' : `Needs ${h.unlockStars} ⭐ (${s.stars})`}</Text>
+                      <Text style={styles.cardSub}>{unlockable ? 'Tap to unlock!' : `Needs ${h.unlockStars} :star: (${s.stars})`}</Text>
                     )}
                   </View>
                 </View>
@@ -138,10 +142,10 @@ export default function Home() {
                     })}
                   </View>
                 ) : null}
-                {canUp ? <View style={[styles.flag, { right: 8 }]}><Text style={styles.flagText}>⬆ Upgrade</Text></View> : null}
+                {canUp ? <View style={[styles.flag, { right: 8 }]}><Text style={styles.flagText}>:up: Upgrade</Text></View> : null}
                 {prod >= 5 ? (
-                  <Pressable style={[styles.flag, { left: 8, backgroundColor: C.yellow }]} onPress={() => { update((x) => collectProduction(x, h.id, Date.now())); nav.toast(`Collected ${prod} coins 🪙`); }} accessibilityLabel="Collect coins" testID={`collect-${h.id}`}>
-                    <Text style={[styles.flagText, { color: C.ink }]}>🪙 {prod}</Text>
+                  <Pressable style={[styles.flag, { left: 8, backgroundColor: C.yellow }]} onPress={() => { update((x) => collectProduction(x, h.id, Date.now())); nav.toast(`Collected ${prod} coins :coin:`); }} accessibilityLabel="Collect coins" testID={`collect-${h.id}`}>
+                    <Text style={[styles.flagText, { color: C.ink }]}>:coin: {prod}</Text>
                   </Pressable>
                 ) : null}
                 {unlockable ? <View style={[styles.flag, { right: 8, backgroundColor: C.green }]}><Text style={styles.flagText}>Unlock!</Text></View> : null}
@@ -149,12 +153,12 @@ export default function Home() {
             </Pressable>
           );
         })}
-        <Text style={styles.footer}>More land opens as you earn ⭐</Text>
+        <Text style={styles.footer}>More land opens as you earn :star:</Text>
       </ScrollView>
 
-      <Flyer emoji="🕊️" top={190} dur={14000} delay={0} />
-      <Flyer emoji="🦋" top={330} dur={19000} delay={3000} />
-      <Flyer emoji="🍃" top={460} dur={23000} delay={6000} />
+      <Flyer icon="bird" top={190} dur={14000} delay={0} />
+      <Flyer icon="butterfly" top={330} dur={19000} delay={3000} />
+      <Flyer icon="leaf" top={460} dur={23000} delay={6000} />
 
       {/* top HUD */}
       <View style={styles.hud} pointerEvents="box-none">
@@ -166,28 +170,28 @@ export default function Home() {
           <Text style={styles.goalText} numberOfLines={2}>{mainGoal(s)}</Text>
         </View>
         <Pressable onPress={() => nav.open({ type: 'settings' })} style={styles.gear} accessibilityLabel="Settings" accessibilityRole="button" testID="settings">
-          <Text style={{ fontSize: 26 }}>⚙️</Text>
+          <Text style={{ fontSize: 26 }}>:settings:</Text>
         </Pressable>
       </View>
 
       {/* rails */}
       <View style={[styles.rail, { left: 8 }]} pointerEvents="box-none">
-        <IconBtn icon="🥚" label="Eggs" badge={eggCount || undefined} onPress={() => nav.open({ type: 'egg' })} testID="rail-eggs" />
+        <IconBtn icon=":egg:" label="Eggs" badge={eggCount || undefined} onPress={() => nav.open({ type: 'egg' })} testID="rail-eggs" />
       </View>
       <View style={[styles.rail, { right: 8 }]} pointerEvents="box-none">
-        <IconBtn icon="📋" label="Tasks" badge={taskReady} onPress={() => nav.open({ type: 'tasks' })} testID="rail-tasks" />
-        <IconBtn icon="🔥" label="Streak" badge={daily.claimable} onPress={() => nav.open({ type: 'daily' })} testID="rail-daily" />
-        <IconBtn icon="🗺️" label="Map" onPress={() => nav.go({ name: 'map' })} testID="rail-map" />
+        <IconBtn icon=":task:" label="Tasks" badge={taskReady} onPress={() => nav.open({ type: 'tasks' })} testID="rail-tasks" />
+        <IconBtn icon=":flame:" label="Streak" badge={daily.claimable} onPress={() => nav.open({ type: 'daily' })} testID="rail-daily" />
+        <IconBtn icon=":map:" label="Map" onPress={() => nav.go({ name: 'map' })} testID="rail-map" />
       </View>
 
       {/* bottom bar */}
       <View style={styles.bottom} pointerEvents="box-none">
         <View style={styles.pills} pointerEvents="none">
-          <Pill icon="🪙" value={s.coins} />
-          <Pill icon="💎" value={s.gems} />
+          <Pill icon=":coin:" value={s.coins} />
+          <Pill icon=":gem:" value={s.gems} />
         </View>
         <View style={{ alignItems: 'center', width: '100%' }}>
-          <Btn label={s.totals.levelsCompleted === 0 ? 'Start Rescue ▶' : `Play Level ${next}`} big onPress={() => nav.go({ name: 'level', id: next })} testID="play" />
+          <Btn label={s.totals.levelsCompleted === 0 ? 'Start Rescue :play:' : `Play Level ${next}`} big onPress={() => nav.go({ name: 'level', id: next })} testID="play" />
         </View>
       </View>
     </View>

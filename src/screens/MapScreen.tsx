@@ -20,11 +20,11 @@ export default function MapScreen() {
     <View style={styles.root}>
       <View style={styles.top}>
         <Pressable onPress={() => nav.go({ name: 'home' })} style={styles.back} accessibilityLabel="Back" accessibilityRole="button" testID="back">
-          <Text style={{ fontSize: 26 }}>⬅️</Text>
+          <Text style={{ fontSize: 26 }}>:back:</Text>
         </Pressable>
         <Text style={styles.title}>Rescue Trail</Text>
-        <Pill icon="🪙" value={s.coins} />
-        <Pill icon="💎" value={s.gems} />
+        <Pill icon=":coin:" value={s.coins} />
+        <Pill icon=":gem:" value={s.gems} />
       </View>
       <ScrollView ref={scroll} contentContainerStyle={{ paddingVertical: 20, alignItems: 'center' }} onContentSizeChange={() => scroll.current?.scrollToEnd({ animated: false })}>
         {levels.map((n) => {
@@ -44,9 +44,9 @@ export default function MapScreen() {
                 style={{ transform: [{ translateX: offset }], marginVertical: 8 }}
               >
                 <View style={[styles.node, unlocked ? { backgroundColor: stars ? C.green : C.orange } : { backgroundColor: '#C9C2B6' }, isCur && styles.curNode]}>
-                  <Text style={styles.nodeText}>{unlocked ? n : '🔒'}</Text>
+                  <Text style={styles.nodeText}>{unlocked ? n : ':lock:'}</Text>
                 </View>
-                {unlocked && stars > 0 ? <Text style={styles.stars}>{'⭐'.repeat(stars)}</Text> : null}
+                {unlocked && stars > 0 ? <Text style={styles.stars}>{':star:'.repeat(stars)}</Text> : null}
               </Pressable>
             </View>
           );
@@ -56,9 +56,9 @@ export default function MapScreen() {
         <Text style={styles.chapterTitle}>Chapter {ch}: {chapterName(ch)}</Text>
         <View style={{ width: 220, marginVertical: 4 }}><Bar value={prog} max={LEVELS_PER_CHAPTER} color={C.orange} height={14} /></View>
         {prog >= LEVELS_PER_CHAPTER && !s.chapters[ch] ? (
-          <Btn small label="Claim Chapter Reward 🎁" color={C.orange} dark={C.orangeDark} onPress={() => { if (update((x) => claimChapter(x, ch))) nav.toast('Chapter complete! Rare Egg + 5 💎'); }} />
+          <Btn small label="Claim Chapter Reward :gift:" color={C.orange} dark={C.orangeDark} onPress={() => { if (update((x) => claimChapter(x, ch))) nav.toast('Chapter complete! Rare Egg + 5 :gem:'); }} />
         ) : (
-          <Text style={styles.sub}>{prog}/{LEVELS_PER_CHAPTER} levels · reward: Rare Egg + 5 💎</Text>
+          <Text style={styles.sub}>{prog}/{LEVELS_PER_CHAPTER} levels · reward: Rare Egg + 5 :gem:</Text>
         )}
       </View>
     </View>

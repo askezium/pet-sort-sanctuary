@@ -39,6 +39,19 @@ describe('rewards', () => {
     expect(applyLevelComplete(s, lv, r2, 2, false).stars).toBe(3);
   });
 
+  it('rescuing species unlocks their common pets and places them when the habitat is open', () => {
+    const s = newSave(T0);
+    const lv = generateLevel(1); // cat + dog
+    const r = levelReward(s, lv, 3);
+    expect([...r.newPets].sort()).toEqual(['biscuit', 'whiskers']);
+    const n = applyLevelComplete(s, lv, r, 8, false);
+    expect(n.pets.whiskers).toBeDefined();
+    expect(n.pets.biscuit).toBeDefined();
+    expect(n.placed.whiskers).toBe('cottage'); // Cat Cottage is unlocked
+    expect(n.placed.biscuit).toBeUndefined(); // Dog Park still locked
+    expect(levelReward(n, lv, 3).newPets).toEqual([]); // nothing new on replay
+  });
+
   it('doubling via ad doubles coins', () => {
     const s = newSave(T0);
     const lv = generateLevel(1);

@@ -84,11 +84,11 @@ export interface HabitatDef {
 }
 
 export const HABITATS: HabitatDef[] = [
-  { id: 'cottage', name: 'Cat Cottage', emoji: '🏡', species: [0], unlockStars: 0, color: '#FFE0A3' },
-  { id: 'park', name: 'Dog Park', emoji: '🌳', species: [1], unlockStars: 3, color: '#CDEFB5' },
-  { id: 'burrow', name: 'Rabbit Burrow', emoji: '🥕', species: [2], unlockStars: 9, color: '#FAD3E0' },
-  { id: 'birdhouse', name: 'Birdhouse', emoji: '🪺', species: [3], unlockStars: 18, color: '#C9E6FF' },
-  { id: 'den', name: 'Forest Den', emoji: '🌲', species: [4, 5, 6, 7], unlockStars: 30, color: '#C8E3C0' },
+  { id: 'cottage', name: 'Cat Cottage', emoji: ':home:', species: [0], unlockStars: 0, color: '#FFE0A3' },
+  { id: 'park', name: 'Dog Park', emoji: ':tree:', species: [1], unlockStars: 3, color: '#CDEFB5' },
+  { id: 'burrow', name: 'Rabbit Burrow', emoji: ':carrot:', species: [2], unlockStars: 9, color: '#FAD3E0' },
+  { id: 'birdhouse', name: 'Birdhouse', emoji: ':nest:', species: [3], unlockStars: 18, color: '#C9E6FF' },
+  { id: 'den', name: 'Forest Den', emoji: ':forest:', species: [4, 5, 6, 7], unlockStars: 30, color: '#C8E3C0' },
 ];
 
 export const habitatById = (id: string): HabitatDef => HABITATS.find((h) => h.id === id) as HabitatDef;
@@ -110,20 +110,20 @@ export const HABITAT_UPGRADE_COST = [
 export const PRODUCTION_CAP_MIN = 120;
 
 export const PERSONALITY_EMOJI: Record<Personality, string> = {
-  sleepy: '😴',
-  playful: '🎾',
-  curious: '🔍',
-  shy: '🙈',
-  brave: '🦁',
-  mischievous: '😈',
+  sleepy: ':sleepy:',
+  playful: ':playful:',
+  curious: ':curious:',
+  shy: ':shy:',
+  brave: ':brave:',
+  mischievous: ':mischief:',
 };
 
 export const DAILY_REWARDS = [
-  { label: '100 Coins', icon: '🪙' },
-  { label: 'Common Egg', icon: '🥚' },
-  { label: 'Booster', icon: '🔀' },
-  { label: '250 Coins', icon: '🪙' },
-  { label: 'Rare Egg', icon: '🥚' },
-  { label: '25 Materials', icon: '🧱' },
-  { label: 'Epic Egg', icon: '🥚' },
+  { label: '100 Coins', icon: ':coin:' },
+  { label: 'Common Egg', icon: ':egg:' },
+  { label: 'Booster', icon: ':shuffle:' },
+  { label: '250 Coins', icon: ':coin:' },
+  { label: 'Rare Egg', icon: ':egg:' },
+  { label: '25 Materials', icon: ':brick:' },
+  { label: 'Epic Egg', icon: ':egg:' },
 ];

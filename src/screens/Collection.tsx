@@ -21,10 +21,10 @@ export default function Collection() {
     <View style={styles.root}>
       <View style={styles.top}>
         <Pressable onPress={() => nav.go({ name: 'home' })} style={styles.back} accessibilityLabel="Back" accessibilityRole="button" testID="back">
-          <Text style={{ fontSize: 26 }}>⬅️</Text>
+          <Text style={{ fontSize: 26 }}>:back:</Text>
         </Pressable>
         <Text style={styles.title}>Pets {owned}/{PETS.length}</Text>
-        <Pill icon="💖" value={s.hearts} />
+        <Pill icon=":heart:" value={s.hearts} />
       </View>
       <View style={styles.tabs}>
         {TABS.map((t) => (
@@ -42,7 +42,7 @@ export default function Collection() {
                 <PetImage species={p.species} size={64} dim={!has} />
                 <Text style={styles.name}>{has ? p.name : '???'}</Text>
                 <Text style={[styles.rar, { color: has ? RARITY_COLOR[p.rarity] : '#B5ABA0' }]}>{has ? p.rarity : 'locked'}</Text>
-                {has && s.placed[p.id] ? <Text style={styles.home}>🏡</Text> : null}
+                {has && s.placed[p.id] ? <Text style={styles.home}>:home:</Text> : null}
               </View>
             </Pressable>
           );
@@ -67,15 +67,15 @@ export default function Collection() {
                       <Text style={styles.sub}>Likes: {hab.emoji} {hab.name} · copies found: {has.count}</Text>
                       <Text style={styles.sub}>Coin bonus +{((['common', 'rare', 'epic', 'legendary'].indexOf(sel.rarity) + 1) * has.level * 0.5).toFixed(1)}% while placed</Text>
                       {has.level < MAX_PET_LEVEL ? (
-                        <Btn small label={`Upgrade 💖 ${petUpgradeCost(has.level)}`} color={s.hearts >= petUpgradeCost(has.level) ? C.pink : '#B9AFA3'} dark="#D9588A" onPress={() => { if (!update((x) => upgradePet(x, sel.id))) nav.toast('Not enough Pet Hearts — duplicates give hearts'); }} />
-                      ) : <Text style={styles.line}>Max level ✨</Text>}
+                        <Btn small label={`Upgrade :heart: ${petUpgradeCost(has.level)}`} color={s.hearts >= petUpgradeCost(has.level) ? C.pink : '#B9AFA3'} dark="#D9588A" onPress={() => { if (!update((x) => upgradePet(x, sel.id))) nav.toast('Not enough Pet Hearts — duplicates give hearts'); }} />
+                      ) : <Text style={styles.line}>Max level :sparkle:</Text>}
                       {s.placed[sel.id] ? (
                         <Btn label="Remove from Sanctuary" small color="#B9AFA3" dark="#8E857A" onPress={() => update((x) => unplacePet(x, sel.id))} />
                       ) : (
                         <Btn label="Place in Sanctuary" testID="place" onPress={() => {
                           const r = placePet(s, sel.id);
                           if ('error' in r) nav.toast(r.error);
-                          else { update(() => r); nav.toast(`${sel.name} moved in! 🏡`); }
+                          else { update(() => r); nav.toast(`${sel.name} moved in! :home:`); }
                         }} />
                       )}
                     </>

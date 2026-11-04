@@ -8,7 +8,7 @@ import {
 } from '../core/session';
 import { canMove, petsAwayFromRescue, type Move } from '../core/sort';
 import { applyLevelComplete, levelReward, noteBoosterUse, useBooster, type BoosterKind, type Reward } from '../meta/game';
-import { SPECIES } from '../meta/data';
+import { SPECIES, petById } from '../meta/data';
 import { useNav } from '../nav';
 import { showRewarded } from '../services/ads';
 import { track } from '../services/analytics';
@@ -203,13 +203,13 @@ export default function LevelScreen({ id }: { id: number }) {
     <View style={styles.root}>
       <View style={styles.top}>
         <Pressable onPress={leave} style={styles.back} accessibilityLabel="Back" accessibilityRole="button" testID="back">
-          <Text style={{ fontSize: 26 }}>⬅️</Text>
+          <Text style={{ fontSize: 26 }}>:back:</Text>
         </Pressable>
         <View style={{ alignItems: 'center', flex: 1 }}>
           <Text style={styles.title}>Level {id}</Text>
-          <Text style={styles.sub}>Rescue all pets · ⭐ par {level.par}</Text>
+          <Text style={styles.sub}>Rescue all pets · :star: par {level.par}</Text>
         </View>
-        <Pill icon="🪙" value={save.coins} />
+        <Pill icon=":coin:" value={save.coins} />
       </View>
 
       <View style={styles.movesRow}>
@@ -245,7 +245,7 @@ export default function LevelScreen({ id }: { id: number }) {
                       <PetToken key={`${j}-${t}`} type={t} size={token} lift={isSel && j === c.length - 1 ? -12 : 0} />
                     ))}
                   </View>
-                  {isHintFrom ? <Text style={styles.hintTag}>👆 pick</Text> : isHintTo ? <Text style={styles.hintTag}>⬇ here</Text> : null}
+                  {isHintFrom ? <Text style={styles.hintTag}>:pointer: pick</Text> : isHintTo ? <Text style={styles.hintTag}>:down: here</Text> : null}
                 </Pressable>
               );
             })}
@@ -255,10 +255,10 @@ export default function LevelScreen({ id }: { id: number }) {
       </View>
 
       <View style={styles.bottom}>
-        <Booster icon="↩️" label="Undo" count={Math.max(0, FREE_UNDO - sess.undosUsed) || save.boosters.undo} onPress={doUndo} testID="undo" />
-        <Booster icon="💡" label="Hint" count={Math.max(0, FREE_HINT - sess.hintsUsed) || save.boosters.hint} onPress={doHint} testID="hint" />
-        <Booster icon="🔀" label="Shuffle" count={save.boosters.shuffle} onPress={doShuffle} testID="shuffle" />
-        <Booster icon="🔄" label="Restart" onPress={retry} testID="restart" />
+        <Booster icon=":undo:" label="Undo" count={Math.max(0, FREE_UNDO - sess.undosUsed) || save.boosters.undo} onPress={doUndo} testID="undo" />
+        <Booster icon=":hint:" label="Hint" count={Math.max(0, FREE_HINT - sess.hintsUsed) || save.boosters.hint} onPress={doHint} testID="hint" />
+        <Booster icon=":shuffle:" label="Shuffle" count={save.boosters.shuffle} onPress={doShuffle} testID="shuffle" />
+        <Booster icon=":restart:" label="Restart" onPress={retry} testID="restart" />
       </View>
 
       {rescueFx ? (
@@ -267,25 +267,33 @@ export default function LevelScreen({ id }: { id: number }) {
           style={[styles.fx, { opacity: fxAnim.interpolate({ inputRange: [0, 0.2, 0.8, 1], outputRange: [0, 1, 1, 0] }), transform: [{ translateY: fxAnim.interpolate({ inputRange: [0, 1], outputRange: [20, -70] }) }, { scale: fxAnim.interpolate({ inputRange: [0, 0.3, 1], outputRange: [0.5, 1.3, 1] }) }] }]}
         >
           <PetImage species={rescueFx.species} size={110} />
-          <Text style={styles.fxText}>Rescued! ✨</Text>
+          <Text style={styles.fxText}>Rescued! :sparkle:</Text>
         </Animated.View>
       ) : null}
 
       {sess.status === 'won' && reward ? (
         <Overlay dim={0.6}>
-          <Panel title="Level Complete! 🎉">
-            <Text testID="stars" style={{ fontSize: 46, letterSpacing: 4 }}>{'⭐'.repeat(sess.stars)}{'☆'.repeat(3 - sess.stars)}</Text>
+          <Panel title="Level Complete! :party:">
+            <Text testID="stars" style={{ fontSize: 46, letterSpacing: 4 }}>{':star:'.repeat(sess.stars)}{':starOutline:'.repeat(3 - sess.stars)}</Text>
             <Text style={styles.sub}>{movesUsed(sess)} moves · par {level.par}</Text>
             <View style={styles.rewardBox}>
-              <Text style={styles.rewardLine}>🪙 +{reward.coins}</Text>
-              <Text style={styles.rewardLine}>🧱 +{reward.materials}</Text>
-              <Text style={styles.rewardLine}>⚡ +{reward.xp} XP</Text>
-              {reward.egg ? <Text style={styles.rewardLine}>🥚 {reward.egg === 'common' ? 'Common' : reward.egg === 'rare' ? 'Rare' : 'Epic'} Egg!</Text> : null}
+              <Text style={styles.rewardLine}>:coin: +{reward.coins}</Text>
+              <Text style={styles.rewardLine}>:brick: +{reward.materials}</Text>
+              <Text style={styles.rewardLine}>:bolt: +{reward.xp} XP</Text>
+              {reward.egg ? <Text style={styles.rewardLine}>:egg: {reward.egg === 'common' ? 'Common' : reward.egg === 'rare' ? 'Rare' : 'Epic'} Egg!</Text> : null}
               {!reward.firstClear ? <Text style={styles.sub}>Replay rewards are halved</Text> : null}
             </View>
-            <Btn label="Next Level ▶" big onPress={() => collect(false, reward.egg ? 'egg' : 'next')} testID="next-level" />
+            {reward.newPets.length > 0 ? (
+              <View style={{ alignItems: 'center', marginBottom: 4 }}>
+                <Text style={styles.sub}>New pets unlocked!</Text>
+                <View style={{ flexDirection: 'row' }}>
+                  {reward.newPets.map((id) => <PetImage key={id} species={petById(id).species} size={52} />)}
+                </View>
+              </View>
+            ) : null}
+            <Btn label="Next Level :play:" big onPress={() => collect(false, reward.egg ? 'egg' : 'next')} testID="next-level" />
             {reward.egg ? <Text style={styles.sub}>Opens your new egg first</Text> : null}
-            <Btn label="Collect x2 — Watch Ad 📺" color={C.orange} dark={C.orangeDark} onPress={collectDoubled} testID="collect-x2" />
+            <Btn label="Collect x2 — Watch Ad :ad:" color={C.orange} dark={C.orangeDark} onPress={collectDoubled} testID="collect-x2" />
             <Btn label="Sanctuary" small color={C.sky} dark={C.skyDark} onPress={() => collect(false, 'home')} testID="to-home" />
           </Panel>
         </Overlay>
@@ -294,11 +302,11 @@ export default function LevelScreen({ id }: { id: number }) {
       {sess.status === 'failed' ? (
         <Overlay dim={0.6}>
           <Panel title={sess.failReason === 'stuck' ? 'No Moves Left' : 'Out of Moves'}>
-            <Text style={{ fontSize: 54 }}>😿</Text>
+            <Text style={{ fontSize: 54 }}>:sad:</Text>
             <Text style={styles.rewardLine}>{away === 0 ? 'So close!' : `${away} pet${away === 1 ? '' : 's'} away from a rescue`}</Text>
             <Btn label="Retry" big onPress={retry} testID="retry" />
-            {sess.failReason === 'moves' ? <Btn label="+5 Moves — Watch Ad 📺" color={C.orange} dark={C.orangeDark} onPress={() => extraMoves(true)} testID="extra-ad" /> : null}
-            {sess.failReason === 'moves' ? <Btn label={`+5 Moves — 3 💎 (have ${save.gems})`} small color={C.teal} dark="#1B9488" onPress={() => extraMoves(false)} testID="extra-gems" /> : null}
+            {sess.failReason === 'moves' ? <Btn label="+5 Moves — Watch Ad :ad:" color={C.orange} dark={C.orangeDark} onPress={() => extraMoves(true)} testID="extra-ad" /> : null}
+            {sess.failReason === 'moves' ? <Btn label={`+5 Moves — 3 :gem: (have ${save.gems})`} small color={C.teal} dark="#1B9488" onPress={() => extraMoves(false)} testID="extra-gems" /> : null}
             {sess.history.length > 0 ? <Btn label="Undo last move" small color={C.sky} dark={C.skyDark} onPress={() => setSess((s) => undoMove(s))} /> : null}
             <Btn label="Leave" small color="#B9AFA3" dark="#8E857A" onPress={leave} testID="leave" />
           </Panel>
@@ -311,10 +319,9 @@ export default function LevelScreen({ id }: { id: number }) {
 function Booster({ icon, label, count, onPress, testID }: { icon: string; label: string; count?: number; onPress: () => void; testID: string }) {
   return (
     <Pressable onPress={() => { haptic('tap'); onPress(); }} style={styles.booster} accessibilityRole="button" accessibilityLabel={label} testID={testID}>
-      <Text style={{ fontSize: 28 }}>{icon}</Text>
-      <Text style={styles.boosterLabel}>{label}</Text>
+      <Text style={{ fontSize: 32, color: C.ink }}>{icon}</Text>
       {count !== undefined ? (
-        <View style={styles.count}><Text style={styles.countText}>{count > 0 ? count : '📺'}</Text></View>
+        <View style={styles.count}><Text style={styles.countText}>{count > 0 ? count : ':play:'}</Text></View>
       ) : null}
     </Pressable>
   );

@@ -4,9 +4,9 @@ import { useNav } from '../nav';
 import { C, Text, haptic } from './kit';
 
 const TABS = [
-  { route: 'shop', icon: '🛍️', label: 'Shop' },
-  { route: 'home', icon: '🏡', label: 'Main' },
-  { route: 'collection', icon: '🐾', label: 'Pets' },
+  { route: 'shop', icon: ':shop:', label: 'Shop' },
+  { route: 'home', icon: ':home:', label: 'Main' },
+  { route: 'collection', icon: ':paw:', label: 'Pets' },
 ] as const;
 
 /** Bottom tab bar shown on the three hub screens. The active tab is raised and its icon pops above the bar. */
@@ -28,7 +28,7 @@ export default function TabBar() {
             }}
             style={[styles.tab, active && styles.active]}
           >
-            <Text style={[styles.icon, active && { fontSize: 38, marginTop: -22 }]}>{t.icon}</Text>
+            <Text style={[styles.icon, { color: active ? C.ink : C.inkSoft }, active && { fontSize: 38, marginTop: -22 }]}>{t.icon}</Text>
             <Text style={[styles.label, active && { color: C.ink }]}>{t.label.toUpperCase()}</Text>
           </Pressable>
         );

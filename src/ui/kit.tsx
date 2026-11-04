@@ -1,3 +1,4 @@
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Image, Platform, Pressable, StyleSheet, Text as RNText, View, type StyleProp, type TextProps, type ViewStyle } from 'react-native';
@@ -33,12 +34,113 @@ const FONT: Record<string, string> = {
   '700': 'Fredoka_700Bold',
 };
 
-/** Drop-in for react-native's Text that applies the Fredoka family matching the requested weight. */
-export function Text({ style, ...rest }: TextProps) {
+// ---- vector icons -------------------------------------------------------------
+// Strings anywhere in the UI can contain tokens like ":star:" or ":coin:"; <Text> below swaps them for icons.
+interface IconDef {
+  set: 'ion' | 'mci';
+  name: string;
+  /** Fixed colour; icons without one follow the surrounding text colour. */
+  color?: string;
+}
+
+export const ICONS = {
+  coin: { set: 'ion', name: 'paw' }, // drawn specially: gold disc with a paw
+  gem: { set: 'mci', name: 'diamond-stone', color: '#4DA8FF' },
+  star: { set: 'ion', name: 'star', color: '#F5B82E' },
+  starOutline: { set: 'ion', name: 'star-outline', color: '#C9A24B' },
+  egg: { set: 'mci', name: 'egg', color: '#E2B27B' },
+  ad: { set: 'ion', name: 'play-circle', color: '#E07B39' },
+  home: { set: 'ion', name: 'home' },
+  brick: { set: 'mci', name: 'wall', color: '#C46A4A' },
+  back: { set: 'ion', name: 'arrow-back' },
+  sparkle: { set: 'ion', name: 'sparkles', color: '#F5B82E' },
+  shuffle: { set: 'ion', name: 'shuffle' },
+  heart: { set: 'ion', name: 'heart', color: '#E2615B' },
+  party: { set: 'ion', name: 'trophy', color: '#F5B82E' },
+  undo: { set: 'ion', name: 'arrow-undo' },
+  hint: { set: 'ion', name: 'bulb', color: '#F5B82E' },
+  lock: { set: 'ion', name: 'lock-closed', color: '#A98763' },
+  settings: { set: 'ion', name: 'settings' },
+  task: { set: 'ion', name: 'clipboard' },
+  flame: { set: 'ion', name: 'flame', color: '#F08A3D' },
+  gift: { set: 'ion', name: 'gift', color: '#E2615B' },
+  paw: { set: 'ion', name: 'paw' },
+  tree: { set: 'mci', name: 'tree', color: '#5BAA4B' },
+  carrot: { set: 'mci', name: 'carrot', color: '#F08A3D' },
+  nest: { set: 'mci', name: 'bird', color: '#5BA8E6' },
+  forest: { set: 'mci', name: 'pine-tree', color: '#3E8E55' },
+  sleepy: { set: 'mci', name: 'sleep' },
+  playful: { set: 'mci', name: 'tennis-ball', color: '#B7C93A' },
+  curious: { set: 'mci', name: 'magnify' },
+  shy: { set: 'mci', name: 'eye-off-outline' },
+  brave: { set: 'mci', name: 'shield-star' },
+  mischief: { set: 'mci', name: 'emoticon-devil-outline' },
+  zzz: { set: 'mci', name: 'sleep', color: '#8FA3B5' },
+  up: { set: 'ion', name: 'arrow-up' },
+  down: { set: 'ion', name: 'arrow-down' },
+  bird: { set: 'mci', name: 'bird', color: '#7FB6E6' },
+  butterfly: { set: 'mci', name: 'butterfly', color: '#E26B8B' },
+  leaf: { set: 'ion', name: 'leaf', color: '#6BBF59' },
+  map: { set: 'ion', name: 'map' },
+  pointer: { set: 'mci', name: 'hand-pointing-up' },
+  restart: { set: 'ion', name: 'refresh' },
+  bolt: { set: 'ion', name: 'flash', color: '#F5B82E' },
+  sad: { set: 'ion', name: 'sad' },
+  food: { set: 'mci', name: 'food-drumstick', color: '#C0763E' },
+  check: { set: 'ion', name: 'checkmark-circle', color: '#5BAA4B' },
+  close: { set: 'ion', name: 'close' },
+  shop: { set: 'ion', name: 'bag-handle' },
+  play: { set: 'ion', name: 'play' },
+} as const satisfies Record<string, IconDef>;
+
+export type IconName = keyof typeof ICONS;
+
+export function Icon({ name, size = 20, color }: { name: IconName; size?: number; color?: string }) {
+  const d: IconDef = ICONS[name];
+  if (name === 'coin') {
+    return (
+      <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: '#F7C95C', borderWidth: Math.max(1.5, size / 11), borderColor: C.outline, alignItems: 'center', justifyContent: 'center', marginHorizontal: 1 }}>
+        <Ionicons name="paw" size={size * 0.52} color={C.outline} />
+      </View>
+    );
+  }
+  const col = color ?? d.color ?? C.ink;
+  const Set = d.set === 'ion' ? Ionicons : MaterialCommunityIcons;
+  return <Set name={d.name as never} size={size} color={col} style={{ marginHorizontal: 1 }} />;
+}
+
+const TOKEN = /:([A-Za-z0-9]+):/g;
+
+function expand(node: React.ReactNode, size: number, textColor: string | undefined): React.ReactNode {
+  if (Array.isArray(node)) return node.map((c, i) => (typeof c === 'string' ? <React.Fragment key={i}>{expand(c, size, textColor)}</React.Fragment> : c));
+  if (typeof node !== 'string' || !node.includes(':')) return node;
+  const out: React.ReactNode[] = [];
+  let last = 0;
+  TOKEN.lastIndex = 0;
+  for (let m = TOKEN.exec(node); m; m = TOKEN.exec(node)) {
+    if (m.index > last) out.push(node.slice(last, m.index));
+    const n = m[1];
+    if (n in ICONS) {
+      const own = (ICONS as Record<string, IconDef>)[n].color;
+      out.push(<Icon key={out.length} name={n as IconName} size={size} color={own ? undefined : textColor} />);
+    } else out.push(m[0]);
+    last = m.index + m[0].length;
+  }
+  if (last < node.length) out.push(node.slice(last));
+  return out;
+}
+
+/** Drop-in for react-native's Text: applies Fredoka for the requested weight and expands :icon: tokens. */
+export function Text({ style, children, ...rest }: TextProps) {
   const flat = StyleSheet.flatten(style) || {};
   const w = String(flat.fontWeight ?? '400');
   const key = w === 'bold' ? '700' : w === 'normal' ? '400' : w >= '700' ? '700' : w;
-  return <RNText {...rest} style={[style, { fontFamily: FONT[key] ?? FONT['400'], fontWeight: 'normal' }]} />;
+  const size = Math.round((typeof flat.fontSize === 'number' ? flat.fontSize : 16) * 1.02);
+  return (
+    <RNText {...rest} style={[style, { fontFamily: FONT[key] ?? FONT['400'], fontWeight: 'normal' }]}>
+      {expand(children, size, typeof flat.color === 'string' ? flat.color : undefined)}
+    </RNText>
+  );
 }
 
 export function haptic(kind: 'tap' | 'good' | 'bad' = 'tap') {
@@ -69,7 +171,7 @@ export function Btn({ label, onPress, color = C.green, dark = C.greenDark, disab
   return (
     <Pressable
       testID={testID}
-      accessibilityLabel={label}
+      accessibilityLabel={label.replace(/:\w+:/g, '').trim()}
       accessibilityRole="button"
       disabled={disabled}
       onPressIn={() => to(0.94)}
@@ -101,8 +203,7 @@ export function IconBtn({
   return (
     <Pressable testID={testID} accessibilityLabel={label} accessibilityRole="button" onPress={() => { haptic('tap'); onPress(); }} style={{ marginVertical: 5 }}>
       <View style={[styles.iconBtn, { width: size, height: size, borderRadius: size / 3 }]}>
-        <Text style={{ fontSize: size * 0.5 }}>{icon}</Text>
-        <Text style={styles.iconLabel}>{label}</Text>
+        <Text style={{ fontSize: size * 0.58, color: C.ink }}>{icon}</Text>
       </View>
       {badge ? (
         <View style={styles.badge}>
@@ -239,12 +340,13 @@ export function PawBg() {
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: C.page, overflow: 'hidden' }]}>
       {PAWS.map((p) => (
-        <RNText
+        <Ionicons
           key={p.key}
-          style={{ position: 'absolute', left: p.left, top: p.top, fontSize: 30, opacity: 0.07, transform: [{ rotate: `${p.rot}deg` }] }}
-        >
-          🐾
-        </RNText>
+          name="paw"
+          size={30}
+          color={C.outline}
+          style={{ position: 'absolute', left: p.left, top: p.top, opacity: 0.07, transform: [{ rotate: `${p.rot}deg` }] }}
+        />
       ))}
     </View>
   );

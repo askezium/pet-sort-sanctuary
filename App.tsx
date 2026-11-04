@@ -13,6 +13,7 @@ import { registerAdHost } from './src/services/ads';
 import { recentEvents } from './src/services/analytics';
 import { getSave } from './src/store';
 import { Fredoka_400Regular, Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold } from '@expo-google-fonts/fredoka';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { Text, Btn, C, Overlay, Panel, PawBg, Toast } from './src/ui/kit';
 import TabBar from './src/ui/TabBar';
@@ -36,7 +37,7 @@ function AdHost() {
   };
   return (
     <Overlay dim={0.9}>
-      <Panel title="📺 Sample Ad">
+      <Panel title=":ad: Sample Ad">
         <Text style={styles.adText}>Simulated rewarded ad{'\n'}(no real ads in this prototype)</Text>
         <Btn label={ad.left > 0 ? `Reward in ${ad.left}…` : 'Claim Reward'} disabled={ad.left > 0} onPress={() => close(true)} testID="ad-claim" />
         <Btn small label="Skip (no reward)" color="#B9AFA3" dark="#8E857A" onPress={() => close(false)} testID="ad-skip" />
@@ -67,7 +68,14 @@ function Router() {
 }
 
 export default function App() {
-  const [fontsLoaded] = useFonts({ Fredoka_400Regular, Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold });
+  const [fontsLoaded] = useFonts({
+    Fredoka_400Regular,
+    Fredoka_500Medium,
+    Fredoka_600SemiBold,
+    Fredoka_700Bold,
+    ...Ionicons.font,
+    ...MaterialCommunityIcons.font,
+  });
   useEffect(() => {
     if (Platform.OS === 'web') {
       // Handle for automated checks: readable state without poking the DOM.

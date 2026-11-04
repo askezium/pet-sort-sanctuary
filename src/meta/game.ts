@@ -122,6 +122,18 @@ export interface Reward {
   egg: EggKind | null;
   stars: number;
   firstClear: boolean;
+  /** Ids of pets unlocked by rescuing their species for the first time. */
+  newPets: string[];
+}
+
+/** Rescuing a species unlocks its common pet. Levels use species 0..types-1. */
+export function newPetsFor(s: Save, level: Level): string[] {
+  const out: string[] = [];
+  for (let sp = 0; sp < level.types; sp++) {
+    const pet = PETS.find((p) => p.species === sp && p.rarity === 'common');
+    if (pet && !s.pets[pet.id]) out.push(pet.id);
+  }
+  return out;
 }
 
 export function coinBonusPct(s: Save): number {
@@ -152,6 +164,7 @@ export function levelReward(s: Save, level: Level, stars: number): Reward {
     egg,
     stars,
     firstClear: first,
+    newPets: newPetsFor(s, level),
   };
 }
 
@@ -173,6 +186,13 @@ export function applyLevelComplete(s: Save, level: Level, reward: Reward, rescue
     },
   };
   if (reward.egg) n = { ...n, eggs: { ...n.eggs, [reward.egg]: n.eggs[reward.egg] + (doubled ? 2 : 1) } };
+  // Newly rescued species move into their habitat when it is unlocked and has room.
+  for (const id of reward.newPets) {
+    if (n.pets[id]) continue;
+    n = { ...n, pets: { ...n.pets, [id]: { level: 1, count: 1 } } };
+    const placed = placePet(n, id);
+    if (!('error' in placed)) n = placed;
+  }
   n = addTaskProgress(n, 'levels', 1);
   n = addTaskProgress(n, 'rescue', rescuedCount);
   return n;
@@ -323,13 +343,13 @@ export interface ShopItem {
 }
 
 export const SHOP_ITEMS: ShopItem[] = [
-  { id: 'undo', name: 'Undo x3', icon: '↩️', desc: 'Reverse your last move', price: 90, currency: 'coins' },
-  { id: 'hint', name: 'Hint x3', icon: '💡', desc: 'Highlight a smart move', price: 90, currency: 'coins' },
-  { id: 'shuffle', name: 'Shuffle x2', icon: '🔀', desc: 'Rearrange the board', price: 120, currency: 'coins' },
-  { id: 'egg-common', name: 'Common Egg', icon: '🥚', desc: 'A new friend awaits', price: 150, currency: 'coins' },
-  { id: 'egg-rare', name: 'Rare Egg', icon: '🥚', desc: 'Rare or better pet', price: 12, currency: 'gems' },
-  { id: 'egg-epic', name: 'Epic Egg', icon: '🥚', desc: 'Epic chance, legendary possible', price: 35, currency: 'gems' },
-  { id: 'materials', name: 'Materials x20', icon: '🧱', desc: 'For habitat upgrades', price: 8, currency: 'gems' },
+  { id: 'undo', name: 'Undo x3', icon: ':undo:', desc: 'Reverse your last move', price: 90, currency: 'coins' },
+  { id: 'hint', name: 'Hint x3', icon: ':hint:', desc: 'Highlight a smart move', price: 90, currency: 'coins' },
+  { id: 'shuffle', name: 'Shuffle x2', icon: ':shuffle:', desc: 'Rearrange the board', price: 120, currency: 'coins' },
+  { id: 'egg-common', name: 'Common Egg', icon: ':egg:', desc: 'A new friend awaits', price: 150, currency: 'coins' },
+  { id: 'egg-rare', name: 'Rare Egg', icon: ':egg:', desc: 'Rare or better pet', price: 12, currency: 'gems' },
+  { id: 'egg-epic', name: 'Epic Egg', icon: ':egg:', desc: 'Epic chance, legendary possible', price: 35, currency: 'gems' },
+  { id: 'materials', name: 'Materials x20', icon: ':brick:', desc: 'For habitat upgrades', price: 8, currency: 'gems' },
 ];
 
 export function buyItem(s: Save, itemId: string): Save | null {
@@ -464,6 +484,6 @@ export function claimTaskBonus(s: Save): Save | null {
 /** What the player should aim for next, shown at the top of the Sanctuary. */
 export function mainGoal(s: Save): string {
   const next = HABITATS.find((h) => !s.habitats[h.id].unlocked);
-  if (next) return `Earn ${next.unlockStars} ⭐ to open ${next.name} (${s.stars}/${next.unlockStars})`;
+  if (next) return `Earn ${next.unlockStars} :star: to open ${next.name} (${s.stars}/${next.unlockStars})`;
   return `Rescue ${Math.ceil((s.totals.rescued + 1) / 20) * 20} pets (${s.totals.rescued})`;
 }

@@ -14,7 +14,7 @@ export default function Shop() {
   async function freeCoins() {
     if (await showRewarded('shop_free_coins')) {
       update((x) => ({ ...x, coins: x.coins + 50 }));
-      nav.toast('+50 🪙 thanks for watching!');
+      nav.toast('+50 :coin: thanks for watching!');
     }
   }
 
@@ -22,15 +22,15 @@ export default function Shop() {
     <View style={styles.root}>
       <View style={styles.top}>
         <Pressable onPress={() => nav.go({ name: 'home' })} style={styles.back} accessibilityLabel="Back" accessibilityRole="button" testID="back">
-          <Text style={{ fontSize: 26 }}>⬅️</Text>
+          <Text style={{ fontSize: 26 }}>:back:</Text>
         </Pressable>
         <Text style={styles.title}>Shop</Text>
-        <Pill icon="🪙" value={s.coins} />
-        <Pill icon="💎" value={s.gems} />
+        <Pill icon=":coin:" value={s.coins} />
+        <Pill icon=":gem:" value={s.gems} />
       </View>
       <ScrollView contentContainerStyle={{ padding: 14, alignItems: 'center' }}>
         <View style={styles.card}>
-          <Text style={{ fontSize: 40 }}>📺</Text>
+          <Text style={{ fontSize: 40 }}>:ad:</Text>
           <View style={{ flex: 1, marginLeft: 10 }}>
             <Text style={styles.name}>Free Coins</Text>
             <Text style={styles.desc}>Watch a short ad for +50 coins</Text>
@@ -49,7 +49,7 @@ export default function Shop() {
               <Btn
                 small
                 testID={`buy-${it.id}`}
-                label={`${it.currency === 'coins' ? '🪙' : '💎'} ${it.price}`}
+                label={`${it.currency === 'coins' ? ':coin:' : ':gem:'} ${it.price}`}
                 color={afford ? C.green : '#B9AFA3'}
                 dark={afford ? C.greenDark : '#8E857A'}
                 onPress={() => {
@@ -64,7 +64,7 @@ export default function Shop() {
         })}
         <Text style={styles.section}>Gem Packs</Text>
         <View style={[styles.card, { opacity: 0.6 }]}>
-          <Text style={{ fontSize: 40 }}>💎</Text>
+          <Text style={{ fontSize: 40 }}>:gem:</Text>
           <View style={{ flex: 1, marginLeft: 10 }}>
             <Text style={styles.name}>Gem packs, Starter Bundle, Remove Ads</Text>
             <Text style={styles.desc}>Real-money purchases need store billing (RevenueCat / Play & App Store). Not in this prototype.</Text>
